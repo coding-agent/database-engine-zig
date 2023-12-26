@@ -7,16 +7,25 @@ const ColumnType = enum {
     bool
 };
 
+const ForeignKey = struct {
+    tableIndex: usize,
+    columnIndex: usize,
+};
+
 pub const Column = struct {
+    index: usize,
     name: []const u8,
-    columnType: ColumnType
+    columnType: ColumnType,
+    foreignKey: ?ForeignKey
 };
 
 pub const Table = struct {
+    index: usize,
+    name: []const u8,
     columns: []Column,
-    file: std.fs.File
 };
 
-pub const Database = struct {
+pub const Schema = struct {
     tables: []Table,
+    file: std.fs.File
 };
