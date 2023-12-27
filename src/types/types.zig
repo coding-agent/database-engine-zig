@@ -26,6 +26,12 @@ pub const Table = struct {
 };
 
 pub const Schema = struct {
+    name: []const u8,
     tables: []Table,
     file: std.fs.File
+};
+
+pub const Buffer = struct {
+    const Self = @This();
+    pub const Error = std.mem.Allocator.Error;
 };
