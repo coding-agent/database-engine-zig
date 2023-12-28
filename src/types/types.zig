@@ -35,3 +35,10 @@ pub const Database = struct {
     name: []const u8,
     tables: ?[]Table,
 };
+
+pub const Vocabulary = enum {
+    CREATE,
+    SELECT,
+    DROP,
+    DELETE,
+};

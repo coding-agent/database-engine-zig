@@ -40,6 +40,7 @@ pub fn createDatabase(name: []const u8) !Schema{
         .tables = undefined,
     };
 }
+
 pub fn createTable(database: Schema, name: []const u8) !void{
     const table = Table {
         .name = name,
