@@ -6,6 +6,9 @@ const Types = @import("./types/types.zig");
 const Schema = Types.Schema;
 const Table = Types.Table;
 const Column = Types.Column;
+const Database = Types.Database;
+var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+
 
 fn createFile(name: []const u8) !File{
     var buff: [50]u8 = undefined;
@@ -18,7 +21,13 @@ fn createFile(name: []const u8) !File{
     var databaseDir = try databasesDir.makeOpenPath(name, .{});
     var database = try databaseDir.createFile(file_name, .{});
 
-    _ = std.json.writeStream(database, .{});
+    var contentObject = Database{
+        .name = name,
+        .tables = null
+    };
+    const contentstring = try stringify(&contentObject, 500);
+
+    _ = try database.write(contentstring);
     return database;
 }
 
@@ -46,4 +55,13 @@ fn selectTable(databaseName: []const u8, table: []const u8) !void {
 
     _ = table;
     _ = databaseName;
+}
+
+fn stringify(object: anytype, comptime size: usize) ![]const u8 {
+    var buf: [size]u8 = undefined;
+    var fba = std.heap.FixedBufferAllocator.init(&buf);
+    var string = std.ArrayList(u8).init(fba.allocator());
+    
+    try std.json.stringify(object.*, .{}, string.writer());
+    return string.toOwnedSlice();
 }

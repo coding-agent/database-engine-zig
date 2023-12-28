@@ -31,7 +31,7 @@ pub const Schema = struct {
     file: std.fs.File
 };
 
-pub const Buffer = struct {
-    const Self = @This();
-    pub const Error = std.mem.Allocator.Error;
+pub const Database = struct {
+    name: []const u8,
+    tables: ?[]Table,
 };
