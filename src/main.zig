@@ -7,5 +7,5 @@ pub fn main() !void {
     const args = try std.process.argsAlloc(args_allocator);
     defer std.process.argsFree(args_allocator, args);
 
-    try interpreter(args[1..]);
+    try interpreter(args[1..], .{});
 }

@@ -9,7 +9,6 @@ const Column = Types.Column;
 const Database = Types.Database;
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 
-
 fn createFile(name: []const u8) !File{
     var buff: [50]u8 = undefined;
     const cwd = fs.cwd();
