@@ -21,11 +21,11 @@ fn createFile(name: []const u8) !File{
     var databaseDir = try databasesDir.makeOpenPath(name, .{});
     var database = try databaseDir.createFile(file_name, .{});
 
-    var contentObject = Database{
+    var initialContentObject = Database{
         .name = name,
         .tables = null
     };
-    const contentstring = try stringify(&contentObject, 500);
+    const contentstring = try stringify(&initialContentObject, 500);
 
     _ = try database.write(contentstring);
     return database;
@@ -39,6 +39,18 @@ pub fn createDatabase(name: []const u8) !Schema{
         .file = database,
         .tables = undefined,
     };
+}
+
+pub fn deleteDatabase(name: []const u8) !void{
+    var buff: [50]u8 = undefined;
+    const cwd = fs.cwd();
+
+    const file_format = ".json";
+    const file_name = try std.fmt.bufPrint(&buff, "{s}{s}", .{name, file_format});
+    _ = file_name;
+
+    var databasesDir = try cwd.makeOpenPath("databases", .{});
+    try databasesDir.deleteTree(name);
 }
 
 pub fn createTable(database: Schema, name: []const u8) !void{

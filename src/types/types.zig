@@ -41,4 +41,5 @@ pub const Vocabulary = enum {
     SELECT,
     DROP,
     DELETE,
+    Use,
 };
