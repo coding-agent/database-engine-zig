@@ -30,6 +30,19 @@ fn createFile(name: []const u8) !File{
     return database;
 }
 
+pub fn findFile(name: []const u8) !File {
+    var buff: [50]u8 = undefined;
+    const cwd = fs.cwd();
+
+    const file_format = ".json";
+    const file_name = try std.fmt.bufPrint(&buff, "{s}{s}", .{name, file_format});
+
+    var databasesDir = try cwd.openDir("databases", .{});
+    var databaseDir = try databasesDir.openDir(name, .{});
+
+    return try databaseDir.openFile(file_name, .{.mode = .read_write});
+}
+
 pub fn createDatabase(name: []const u8) !Schema{
     const database: File = try createFile(name);
     defer database.close();

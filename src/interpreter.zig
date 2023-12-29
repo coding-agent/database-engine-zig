@@ -5,7 +5,7 @@ const Vocabulary = Types.Vocabulary;
 const eql = std.mem.eql;
 const stringToEnum = std.meta.stringToEnum;
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-const Options = struct { using: ?[]const u8 = null};
+const Options = struct { db: ?[]const u8 = null, file: ?std.fs.File = null };
 
 pub fn interpreter(args: [][]const u8, options: Options) !void {
     _ = options;
@@ -23,11 +23,12 @@ pub fn interpreter(args: [][]const u8, options: Options) !void {
 
         .USE => {
             const databaseName = if(args.len > 1) args[1] else return std.debug.print("No Database Selected", .{});
+            var file = FileManagement.findFile(databaseName) catch return std.debug.print("No Database found", .{});
+
+            std.debug.print("Using: {s}\n", .{databaseName});
             var buff: [50]u8 = undefined;
             const stdin = std.io.getStdIn().reader();
-            std.debug.print("what is your query?\n", .{});
             const in = try stdin.readUntilDelimiter(&buff, '\n');
-            
 
             var input_list = std.ArrayList([]const u8).init(gpa.allocator());
 
@@ -36,7 +37,7 @@ pub fn interpreter(args: [][]const u8, options: Options) !void {
                 if (word[0] == ' ') continue;
                 try input_list.append(word);
             }
-            try interpreter(try input_list.toOwnedSlice(), .{.using = databaseName});
+            try interpreter(try input_list.toOwnedSlice(), .{.db = databaseName, .file = file});
         },
 
         .EXIT => return,
