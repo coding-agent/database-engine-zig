@@ -22,7 +22,7 @@ pub const Column = struct {
 pub const Table = struct {
     index: usize,
     name: []const u8,
-    columns: []Column,
+    columns: ?[]Column,
 };
 
 pub const Schema = struct {
