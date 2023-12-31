@@ -1,12 +1,14 @@
 const std = @import("std");
 const interpreter = @import("./interpreter.zig").interpreter;
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+const Arena = std.heap.ArenaAllocator;
 
 pub fn main() !void {
-    const args_allocator = gpa.allocator();
-    const args = try std.process.argsAlloc(args_allocator);
-    defer std.process.argsFree(args_allocator, args);
-    //var arena = std.heap.ArenaAllocator.allocator();
+    var arena = Arena.init(std.heap.page_allocator);
+    const allocator = arena.allocator();
+    const args = try std.process.argsAlloc(allocator);
+    defer arena.deinit();
+    defer std.process.argsFree(allocator, args);
 
-    try interpreter(args[1..], .{});
+    try interpreter(args[1..], allocator,.{});
 }
