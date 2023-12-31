@@ -1,22 +1,21 @@
 const std = @import("std");
 
-const ColumnType = enum {
-    u64,
-    i64,
-    f64,
-    bool
+pub const ColumnType = enum {
+    string,
+    integer,
+    float,
+    bool,
 };
 
-const ForeignKey = struct {
-    tableIndex: usize,
-    columnIndex: usize,
-};
+//const ForeignKey = struct {
+//    tableIndex: usize,
+//    reference: []const u8,
+//};
 
 pub const Column = struct {
     index: usize,
     name: []const u8,
     columnType: ColumnType,
-    foreignKey: ?ForeignKey
 };
 
 pub const Table = struct {

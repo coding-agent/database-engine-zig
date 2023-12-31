@@ -1,14 +1,16 @@
 const std = @import("std");
+const Types = @import("./types/types.zig");
 const fs = std.fs;
 const Dir = fs.Dir;
 const File = std.fs.File;
-const Types = @import("./types/types.zig");
 const Schema = Types.Schema;
 const Table = Types.Table;
 const Column = Types.Column;
+const ColumnType = Types.ColumnType;
 const Database = Types.Database;
 const Metadata = File.Metadata;
 const Allocator = std.mem.Allocator;
+const stringToEnum = std.meta.stringToEnum;
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 
 const databaseFolder = "database";
@@ -71,6 +73,11 @@ pub fn createTable(name: []const u8, len: usize) !Table{
     };
 }
 
+pub fn createColumns(statement: []const u8, allocator: Allocator) ![]Column{
+    _ = allocator;
+    _ = statement;
+}
+
 pub fn stringify(object: anytype, allocator: Allocator) ![]const u8 {
     var string = std.ArrayList(u8).init(allocator);
     try std.json.stringify(object.*, .{}, string.writer());
@@ -91,4 +98,14 @@ pub fn parseJSON(comptime T: type, file: File, allocator: Allocator) !T {
 fn readFile(file: File, allocator: Allocator) ![]const u8{
     const content = file.readToEndAlloc(allocator, 5_000_000);
     return content;
+}
+
+fn toColumnType(input: ColumnType) !type {
+    switch (input) {
+        .string => []const u8,
+        .integer => i32,
+        .float => f64,
+        .bool => bool,
+        else => return error.foo
+    }
 }

@@ -1,6 +1,9 @@
 const std = @import("std");
 const FileManagement = @import("./file_management.zig");
 const Types = @import("./types/types.zig");
+const Table = Types.Table;
+const Column = Types.Column;
+const Database = Types.Database;
 const Vocabulary = Types.Vocabulary;
 const eql = std.mem.eql;
 const stringToEnum = std.meta.stringToEnum;
@@ -21,19 +24,25 @@ pub fn interpreter(args: [][]const u8, allocator: Allocator, options: Options) !
 
             if (eql(u8, statement2, "TABLE")) {
                 var file = options.file orelse return std.debug.print("No database Selected", .{});
-                var database = try FileManagement.parseJSON(Types.Database, file.*, allocator);
-                const tables_length = if(database.tables) |val| val.len else 0;
                 defer file.*.close();
-                var table = try  FileManagement.createTable(args[2], tables_length);
 
-                //append table
-                var tables = try allocator.alloc(Types.Table, tables_length+1);
+                var database = try FileManagement.parseJSON(Database, file.*, allocator);
+                const tables_length = if(database.tables) |val| val.len else 0;
+                const tables = database.tables.?;
+                for(tables) |table| {
+                    if(eql(u8, args[2], table.name)) return std.debug.print("Table already exists!", .{});
+                }
+                var table = try FileManagement.createTable(args[2], tables_length);
+
+                //append tables to database
+                var new_tables = try allocator.alloc(Table, tables_length+1);
                 if(database.tables) |file_tables|
-                    for (file_tables, 0..) |file_table, i| {
-                    tables[i] = file_table;
+                    for (file_tables, 0..) |file_table, j| {
+                    new_tables[j] = file_table;
                 };
-                tables[tables_length] = table;
-                database.tables = tables;
+                new_tables[tables_length] = table;
+                database.tables = new_tables;
+
                 const string = try FileManagement.stringify(&database, allocator);
                 try file.seekTo(0);
                 try file.*.writeAll(string);
@@ -66,10 +75,11 @@ pub fn interpreter(args: [][]const u8, allocator: Allocator, options: Options) !
 
         .SELECT => {
             var file = options.file orelse return std.debug.print("No database Selected", .{});
-            var database = try FileManagement.parseJSON(Types.Database, file.*, allocator);
+            var database = try FileManagement.parseJSON(Database, file.*, allocator);
             if(database.tables == null) return std.debug.print("No tables in the Database", .{});
-            
         },
+
+
 
         .EXIT => return,
 
