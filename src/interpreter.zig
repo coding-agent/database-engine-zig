@@ -33,6 +33,7 @@ pub fn interpreter(args: [][]const u8, options: Options) !void {
                 tables[tables_length] = table;
                 database.tables = tables;
                 const string = try FileManagement.stringify(&database);
+                try file.seekTo(0);
                 try file.*.writeAll(string);
             }
         },
