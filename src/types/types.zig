@@ -37,9 +37,16 @@ pub const Database = struct {
 
 pub const Vocabulary = enum {
     CREATE,
-    SELECT,
     DROP,
-    DELETE,
     USE,
+    SELECT,
+    DELETE,
+    ALTER,
+    VALUE,
     EXIT,
+};
+
+pub const Token = struct {
+    keyword: Vocabulary,
+    value: ?[]const u8
 };

@@ -7,7 +7,6 @@ const Database = Types.Database;
 const Vocabulary = Types.Vocabulary;
 const eql = std.mem.eql;
 const stringToEnum = std.meta.stringToEnum;
-var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 const Options = struct { db: ?[]const u8 = null, file: ?*std.fs.File = null };
 const Allocator = std.mem.Allocator;
 
@@ -79,7 +78,11 @@ pub fn interpreter(args: [][]const u8, allocator: Allocator, options: Options) !
             if(database.tables == null) return std.debug.print("No tables in the Database", .{});
         },
 
+        .ALTER => {
+            if(!eql(u8, args[1], "TABLE")) return std.debug.print("Unkown statement: Alter", .{args[1]});
+            
 
+        },
 
         .EXIT => return,
 
