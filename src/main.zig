@@ -1,16 +1,21 @@
 const std = @import("std");
 const interpreter = @import("./interpreter.zig").interpreter;
-const lexer = @import("./lexer.zig");
+const Parser = @import("./parser/parser.zig");
 const Arena = std.heap.ArenaAllocator;
 
 pub fn main() !void {
     var arena = Arena.init(std.heap.page_allocator);
     const allocator = arena.allocator();
-    _ = allocator;
+    const args = try std.process.argsAlloc(allocator);
+    const input = args[1..];
     defer arena.deinit();
 
-    const input = try lexer.parser("", allocator);
-    const parsed_input = try lexer.
+    const parsed_input = try Parser.buildAST(input, allocator);
+    _ = parsed_input;
 
     //try interpreter(input[1..], allocator,.{});
+}
+
+test "input" {
+    try std.testing.expect(true);
 }

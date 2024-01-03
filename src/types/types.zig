@@ -50,3 +50,4 @@ pub const Token = struct {
     keyword: Vocabulary,
     value: ?[]const u8
 };
+
