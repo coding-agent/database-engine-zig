@@ -10,10 +10,8 @@ pub fn main() !void {
     const input = args[1..];
     defer arena.deinit();
 
-    const parsed_input = try Parser.buildAST(input, allocator);
-    _ = parsed_input;
-
-    //try interpreter(input[1..], allocator,.{});
+    const parsed_input = try Parser.parse(input);
+    try interpreter(parsed_input, allocator, .{});
 }
 
 test "input" {
