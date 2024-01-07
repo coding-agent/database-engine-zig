@@ -5,20 +5,37 @@ const Dir = fs.Dir;
 const File = fs.File;
 
 pub fn main() !void {
+    var general_purpose_allocator = std.heap.GeneralPurposeAllocator(.{}){};
+    const gpa = general_purpose_allocator.allocator();
+    const args = try std.process.argsAlloc(gpa)[1..];
+    var arena = std.heap.ArenaAllocator.init(gpa);
+    defer arena.deinit();
+    defer std.process.argsFree(gpa, args);
+    Database("new-db");
 }
 
 fn Database(name: []const u8) !type {
-
     return struct {
         const Self = @This();
         const db_name = name;
         allocator: Allocator,
         tables: ?[]Table,
         dir: Dir,
+        file: File,
 
-        pub fn connect(allocator: Allocator) !Self {
+        pub fn createDatabase() !Self {
             return Self {
-                .allocator = allocator
+
+            };
+        }
+
+        pub fn connect(allocator: Allocator, dir: Dir) !Self {
+            return Self {
+                .allocator = allocator,
+                .dir = dir,
+                .file = dir.openFile(name, .{
+                    .mode = .read_write
+                })
             };
         }
 
@@ -31,6 +48,10 @@ fn Database(name: []const u8) !type {
         }
     };
 }
+
+const ConnectOptions = struct {
+    
+};
 
 const Table = struct {
     id: UUID,
@@ -48,16 +69,18 @@ const Column = struct {
 
 const UUID = u128;
 
-fn newUUIDv4() !UUID {
-    var uuid = std.rand.Random.int(u128);
+//simple unserialized uuid
+//TODO serialize UUID
+fn newUUIDv4() UUID {
+    var uuid = std.rand.Random.int(std.crypto.random, u128);
     uuid &= 0xffffffffffffff3fff0fffffffffffff;
     uuid |= 0x00000000000000800040000000000000;
     return uuid;
 }
 
 test "simple test" {
-    var list = std.ArrayList(i32).init(std.testing.allocator);
-    defer list.deinit(); // try commenting this out and see if zig detects the memory leak!
-    try list.append(42);
-    try std.testing.expectEqual(@as(i32, 42), list.pop());
+    var uuid = newUUIDv4();
+    try std.testing.expect(@TypeOf(uuid) == u128);
 }
+
+
